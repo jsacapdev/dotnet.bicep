@@ -1,0 +1,20 @@
+parameters: 
+  - name: agentPool
+    default: ""
+  - name: entity
+    default: ""
+  - name: environment
+    default: ""
+  - name: location
+    default: ""
+  - name: serviceConnection
+    default: ""
+
+jobs:
+  - template: ../../templates/yaml/build/build-all.yml
+    parameters:
+      agentPool: ${{ parameters.agentPool }}
+      entity: ${{ parameters.entity }}
+      environment: ${{ parameters.environment }}
+      location: ${{ parameters.location }}
+      serviceConnection: ${{ parameters.serviceConnection }}

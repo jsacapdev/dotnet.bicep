@@ -1,0 +1,20 @@
+parameters:
+  - name: agentPool
+    default: ""
+  - name: artifactName
+    default: ""
+  - name: displayName
+    default: ""
+  - name: name
+    default: ""
+  - name: sourceFolder
+    default: ""
+
+jobs:
+  - job: ${{ parameters.name }}
+    displayName: ${{ parameters.displayName }}
+    pool: ${{ parameters.agentPool }}
+    steps:
+      - publish: ${{ parameters.sourceFolder }}
+        displayName: "Publish Artifact"
+        artifact: ${{ parameters.artifactName }}

@@ -71,39 +71,5 @@ configuration:
 
 # Suppression ignores rules for a specific Azure resource by name.
 suppression:
-  Azure.AppConfig.AuditLogs:
-    - appcs-eds-westeu-dev-01
-    - appcs-eds-westeu-prod-01
-    - appcs-eds-westeu-test-01
-    - appcs-eds-northeu-prod-01
-  Azure.AppConfig.GeoReplica:
-    - appcs-eds-westeu-dev-01
-    - appcs-eds-westeu-prod-01
-    - appcs-eds-westeu-test-01
-    - appcs-eds-northeu-prod-01
-  Azure.AppService.AvailabilityZone:
-    - plan-eds-westeu-dev-03
-    - plan-eds-westeu-prod-03
-    - plan-eds-westeu-test-03
-    - plan-eds-northeu-prod-03
-  Azure.AppService.PlanInstanceCount:
-    - plan-eds-westeu-dev-03
-    - plan-eds-westeu-prod-03
-    - plan-eds-westeu-test-03
-    - plan-eds-northeu-prod-03
-  Azure.Deployment.OutputSecretValue:
-    - storageAccount
-  Azure.EventHub.DisableLocalAuth:
-    - evhns-eds-westeu-test-01
-    - evhns-eds-westeu-prod-01
-    - evhns-eds-northeu-prod-01
   Azure.KeyVault.Logs:
-    - kv-eds-westeu-dev-01
-    - kv-eds-westeu-prod-01
-    - kv-eds-westeu-test-01
-    - kv-eds-northeu-prod-01
-  Azure.Storage.UseReplication:
-    - staedswesteudev03
-    - staedswesteutest03
-    - staedswesteuprod03
-    - staedsnortheuprod03
+    - kv-workload-westeu-dev-01

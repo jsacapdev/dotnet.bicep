@@ -1,0 +1,110 @@
+parameters:
+- name: buildTemplatePath
+  default: ''
+- name: deployTemplatePath
+  default: ''
+- name: entity
+  default: ''
+
+stages:
+  - stage: BuildWhatIf
+    displayName: What If
+    jobs:
+      - template: ${{ parameters.buildTemplatePath }}
+        parameters: 
+            agentPool: 'agentpool'
+            entity: ${{ parameters.entity }}
+            environment: 'dev'
+            location: 'westeurope'
+            serviceConnection: 'serviceConnection'
+
+  - ${{ if or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), startsWith(variables['Build.SourceBranch'], 'refs/heads/feature/'), eq(variables['Build.SourceBranch'], 'refs/heads/dev')) }}:
+    - stage: DEV
+      displayName: DEV
+      dependsOn: [BuildWhatIf]
+      jobs:
+        - template: '${{ parameters.deployTemplatePath }}'
+          parameters:
+            agentPool: 'agentpool'
+            entity: ${{ parameters.entity }}
+            environment: 'dev'
+            location: 'westeurope'
+            serviceConnection: 'serviceConnection'
+
+  - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/dev') }}:
+    - stage: TestWhatIf
+      displayName: What If
+      dependsOn: [DEV]      
+      jobs:
+        - template: ${{ parameters.buildTemplatePath }}
+          parameters: 
+            agentPool: 'agentpool'
+            entity: ${{ parameters.entity }}
+            environment: 'test'
+            location: 'westeurope'
+            serviceConnection: 'serviceConnection'
+
+  - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/dev') }}:
+    - stage: TEST
+      displayName: TEST
+      dependsOn: [TestWhatIf]
+      jobs:
+        - template: '${{ parameters.deployTemplatePath }}'
+          parameters:
+            agentPool: 'agentpool'
+            entity: ${{ parameters.entity }}
+            environment: 'test'
+            location: 'westeurope'
+            serviceConnection: 'serviceConnection'
+
+  - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/main') }}:
+    - stage: ProdWhatIf
+      displayName: What If
+      dependsOn: [TEST]      
+      jobs:
+        - template: ${{ parameters.buildTemplatePath }}
+          parameters: 
+            agentPool: 'agentpool'
+            entity: ${{ parameters.entity }}
+            environment: 'prod'
+            location: 'westeurope'
+            serviceConnection: 'serviceConnection'
+
+  - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/main') }}:
+    - stage: PROD
+      displayName: PROD
+      dependsOn: [ProdWhatIf]
+      jobs:
+        - template: '${{ parameters.deployTemplatePath }}'
+          parameters: 
+            agentPool: 'agentpool'
+            entity: ${{ parameters.entity }}
+            environment: 'prod'
+            location: 'westeurope'
+            serviceConnection: 'serviceConnection'
+
+  - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/main') }}:
+    - stage: ProdHaWhatIf
+      displayName: What If (Dual Region)
+      dependsOn: [TEST]      
+      jobs:
+        - template: ${{ parameters.buildTemplatePath }}
+          parameters: 
+            agentPool: 'agentpool'
+            entity: ${{ parameters.entity }}
+            environment: 'prodha'
+            location: 'northeurope'
+            serviceConnection: 'serviceConnection'
+
+  - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/main') }}:
+    - stage: PRODHA
+      displayName: PROD (Dual Region)
+      dependsOn: [ProdHaWhatIf]
+      jobs:
+        - template: '${{ parameters.deployTemplatePath }}'
+          parameters:
+            agentPool: 'agentpool'
+            entity: ${{ parameters.entity }}
+            environment: 'prodha'
+            location: 'northeurope'
+            serviceConnection: 'serviceConnection'

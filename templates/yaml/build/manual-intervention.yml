@@ -1,0 +1,22 @@
+parameters:
+  - name: dependsOn
+    type: object
+    default: []
+  - name: displayName
+    default: ""
+  - name: entity
+    default: ""
+  - name: name
+    default: ""
+
+jobs:
+  - job: ${{ parameters.name }}
+    displayName: ${{ parameters.displayName }}
+    dependsOn: ${{ parameters.dependsOn }}
+    pool: server
+    steps:
+      - task: ManualValidation@0
+        timeoutInMinutes: 60
+        inputs:
+          instructions: Please review the What-If job to validate the deployment for ${{ parameters.entity }}.
+          onTimeout: 'reject'

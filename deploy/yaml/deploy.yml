@@ -1,0 +1,33 @@
+parameters:
+  - name: agentPool
+    default: ""
+  - name: entity
+    default: ""
+  - name: environment
+    default: ""
+  - name: location
+    default: ""
+  - name: serviceConnection
+    default: ""
+
+jobs:
+  - deployment: WorkloadInfra
+    displayName: Deploy Workload Infrastructure
+    pool: ${{ parameters.agentPool }}
+    environment: ${{ parameters.environment }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - download: current
+              displayName: Download Bicep Templates
+              artifact: code
+
+            - template: ../../templates/yaml/deploy/deploy-bicep-template.yml
+              parameters:
+                deploymentName: "WorkloadDeployment-${{ parameters.location }}"
+                serviceConnection: ${{ parameters.serviceConnection }}
+                location: ${{ parameters.location }}
+                templatePath: "$(Pipeline.Workspace)/code/${{ parameters.entity }}/bicep/main.bicep"
+                deploymentParameters: >
+                  "$(Pipeline.Workspace)/code/${{ parameters.entity }}/bicep/env/${{ parameters.environment }}.bicepparam"              

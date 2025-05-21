@@ -1,0 +1,62 @@
+parameters: 
+  - name: agentPool
+    default: ""
+  - name: entity
+    default: ""
+  - name: environment
+    default: ""
+  - name: location
+    default: ""
+  - name: serviceConnection
+    default: ""
+
+jobs:
+  - template: ./publish-path-as-artifact.yml
+    parameters:
+      name: BuildBicepTemplates
+      displayName: "Build Bicep Templates"
+      agentPool: ${{ parameters.agentPool }}
+      artifactName: 'code'
+      sourceFolder: ''
+
+  - template: ./build-bicep.yml
+    parameters:
+      name: ValidateBicepTemplates
+      displayName: "Validate Bicep Templates"
+      agentPool: ${{ parameters.agentPool }}
+      artifactName: ${{ parameters.entity }}
+      dependsOn: [BuildBicepTemplates]
+      entity: ${{ parameters.entity }}
+      environment: ${{ parameters.environment }}
+      jobType: 'build'
+      location: ${{ parameters.location }}
+      serviceConnection: ${{ parameters.serviceConnection }}
+
+  - template: ./build-bicep.yml
+    parameters:
+      name: WhatIfBicepTemplates
+      displayName: "What-If Bicep Templates"
+      agentPool: ${{ parameters.agentPool }}
+      artifactName: ${{ parameters.entity }}
+      dependsOn: [ValidateBicepTemplates]
+      entity: ${{ parameters.entity }}
+      environment: ${{ parameters.environment }}
+      jobType: 'what-if'
+      location: ${{ parameters.location }}
+      serviceConnection: ${{ parameters.serviceConnection }}
+
+  - template: ./psrule-bicep.yml
+    parameters:
+     name: PsRuleBicepTemplates
+     displayName: "Azure Well-Architected Framework Tests"
+     agentPool: ${{ parameters.agentPool }}
+     jobType: 'psrule'
+     dependsOn: [BuildBicepTemplates]
+     environment: ${{ parameters.environment }}
+
+  - template: ./manual-intervention.yml
+    parameters:
+      name: ApproveChanges
+      displayName: "Verify and Approve Changes"
+      entity: ${{ parameters.entity }}
+      dependsOn: [WhatIfBicepTemplates]

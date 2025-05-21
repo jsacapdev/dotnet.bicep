@@ -1,0 +1,47 @@
+parameters:
+  - name: name
+    default: ""
+  - name: displayName
+    default: ""
+  - name: agentPool
+    default: ""
+  - name: dependsOn
+    type: object
+    default: []
+  - name: jobType
+    default: ""
+  - name: environment
+    default: ""
+
+jobs:
+  - job: ${{ parameters.name }}
+    displayName: ${{ parameters.displayName }}
+    dependsOn: ${{ parameters.dependsOn }}
+    pool: ${{ parameters.agentPool }}
+    steps:
+      
+      - download: current
+        artifact: code
+
+      - ${{ if eq(parameters.environment, 'dev') }}:   
+        - task: ps-rule-assert@2
+          displayName: Run PSRule analysis
+          inputs:
+            outputFormat: NUnit3
+            outputPath: reports/ps-rule-results.xml
+            modules: PSRule.Rules.Azure
+            outcome: fail
+
+      - ${{ if eq(parameters.environment, 'dev') }}:
+        - task: PublishTestResults@2
+          displayName: Publish PSRule results
+          condition: succeededOrFailed()
+          inputs:
+            failTaskOnFailedTests: true
+            failTaskOnFailureToPublishResults: true
+            failTaskOnMissingResultsFile: true
+            testResultsFiles: "reports/ps-rule-results.xml"
+            testResultsFormat: NUnit
+            testRunTitle: "PSRule Results"
+
+

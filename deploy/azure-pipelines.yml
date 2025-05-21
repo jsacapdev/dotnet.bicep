@@ -1,0 +1,16 @@
+trigger:
+  branches:
+    include:
+    - main
+    - feature/*
+
+  paths:
+    include: 
+    - deploy
+
+stages: 
+  - template: ../templates/yaml/environments.yml
+    parameters:
+      buildTemplatePath:  ../../deploy/yaml/build.yml
+      deployTemplatePath: ../../deploy/yaml/deploy.yml
+      entity: 'deploy'
